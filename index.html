@@ -1,0 +1,534 @@
+import { useState, useCallback, useMemo } from 'react';
+import { Eye, EyeOff, Plus, Trash2, Copy, Check, Lock, Zap, Shield } from 'lucide-react';
+
+export default function XTeamPasswordManager() {
+  const [passwords, setPasswords] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [copied, setCopied] = useState(null);
+  const [formData, setFormData] = useState({
+    platform: 'roblox',
+    username: '',
+    password: '',
+    email: ''
+  });
+  const [showPassword, setShowPassword] = useState({});
+
+  // Plataformas optimizadas con logos reales SVG
+  const platforms = useMemo(() => [
+    { 
+      id: 'roblox', 
+      name: 'Roblox', 
+      color: '#E60000', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M3 3h3v3H3zm4 0h3v3H7zm4 0h3v3h-3zm4 0h3v3h-3zM3 7h3v3H3zm4 0h3v3H7zm4 0h3v3h-3zm4 0h3v3h-3zM3 11h3v3H3zm4 0h3v3H7zm4 0h3v3h-3zm4 0h3v3h-3z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'instagram', 
+      name: 'Instagram', 
+      color: '#E1306C', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.204-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.265-.057 1.645-.069 4.849-.069zm0-2.163C8.756 0 8.331.012 7.052.07 2.696.278.278 2.579.07 7.052.012 8.331 0 8.756 0 12s.012 3.669.07 4.948c.208 4.474 2.625 6.875 7.052 7.083 1.279.058 1.704.07 4.948.07s3.669-.012 4.948-.07c4.47-.208 6.875-2.614 7.083-7.052.058-1.279.07-1.704.07-4.948s-.012-3.669-.07-4.948c-.208-4.474-2.625-6.878-7.052-7.083-1.279-.06-1.704-.072-4.948-.072z"/>
+          <circle cx="12" cy="12" r="3.6"/>
+          <circle cx="18.406" cy="5.594" r="1.44"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'discord', 
+      name: 'Discord', 
+      color: '#5865F2', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M20.317 4.49a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.036 13.746 13.746 0 0 0-.607 1.249 18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.248.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.49.07.07 0 0 0 3.651 4.6c.326 4.853 2.605 9.072 5.755 10.178a.077.077 0 0 0 .084-.027 14.1 14.1 0 0 0 1.226-1.994.076.076 0 0 0-.042-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.294.075.075 0 0 1 .078-.01c3.927 1.793 8.18 1.793 12.062 0a.075.075 0 0 1 .079.009c.12.098.246.198.373.294a.077.077 0 0 1-.007.128 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.86 19.86 0 0 0 5.756-10.178.077.077 0 0 0-.012-.06z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'youtube', 
+      name: 'YouTube', 
+      color: '#FF0000', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'tiktok', 
+      name: 'TikTok', 
+      color: '#000000', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M19.321 5.562a5.122 5.122 0 0 1-.869-.071v.008a5.06 5.06 0 0 1-4.77-5.278v21.137a3.75 3.75 0 1 1-3.75-3.75 3.74 3.74 0 0 1 .502.036v-4.416a8.969 8.969 0 0 0-1.203-.082A8.977 8.977 0 0 0 0 12.031V7.268a8.977 8.977 0 0 0 8.631 8.948v-4.416a3.75 3.75 0 1 0 3.75-3.75 3.74 3.74 0 0 0-.502.036V5.562z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'twitch', 
+      name: 'Twitch', 
+      color: '#9146FF', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M11.571 4.714h1.429v4.286h-1.429V4.714zM17.714 4.714h1.429v4.286h-1.429V4.714z"/>
+          <path d="M6.857 0L1.143 5.714v12.571h4.286v4.286L12 18.286h3.429L20.571 12V0H6.857z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'minecraft', 
+      name: 'Minecraft', 
+      color: '#0DB679', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M8 0L0 8v8l8 8h8l8-8V8l-8-8H8z"/>
+          <rect x="3" y="3" width="3" height="3" fill="white" opacity="0.4"/>
+          <rect x="8" y="3" width="3" height="3" fill="white" opacity="0.6"/>
+          <rect x="13" y="3" width="3" height="3" fill="white" opacity="0.4"/>
+          <rect x="3" y="8" width="3" height="3" fill="white" opacity="0.6"/>
+          <rect x="8" y="8" width="3" height="3" fill="white"/>
+          <rect x="13" y="8" width="3" height="3" fill="white" opacity="0.6"/>
+          <rect x="3" y="13" width="3" height="3" fill="white" opacity="0.4"/>
+          <rect x="8" y="13" width="3" height="3" fill="white" opacity="0.6"/>
+          <rect x="13" y="13" width="3" height="3" fill="white" opacity="0.4"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'steam', 
+      name: 'Steam', 
+      color: '#1B2838', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M12 0C5.371 0 0 5.371 0 12c0 6.628 5.371 12 12 12 6.628 0 12-5.372 12-12 0-6.629-5.372-12-12-12zm-2.75 8.904c1.052 0 1.906.854 1.906 1.906 0 1.053-.854 1.906-1.906 1.906-1.052 0-1.906-.853-1.906-1.906 0-1.052.854-1.906 1.906-1.906z"/>
+          <path d="M21.269 17.367c-2.121.959-4.606 1.493-7.269 1.493-6.628 0-12-5.372-12-12 0-6.629 5.372-12 12-12 2.663 0 5.148.534 7.269 1.493"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'twitter', 
+      name: 'Twitter/X', 
+      color: '#000000', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.214-6.817L5.551 21.75H2.232l7.577-8.677L.116 2.25h6.82l4.882 6.268L18.244 2.25zM17.534 19.1h1.832L6.455 4.08H4.482L17.534 19.1z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'reddit', 
+      name: 'Reddit', 
+      color: '#FF4500', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.385 4.859-7.181 4.859-3.796 0-7.182-2.165-7.182-4.859a3.5 3.5 0 0 1 .476-1.465 1.742 1.742 0 0 0-.91-3.368c-.56 0-1.023.364-1.229.848a3.987 3.987 0 0 0-.564 1.985c0 2.694 3.385 4.859 7.181 4.859s7.181-2.165 7.181-4.859a4.955 4.955 0 0 0-.435-1.953 1.749 1.749 0 0 0 .3-3.477 3.565 3.565 0 0 1 1.196-1.554 1.25 1.25 0 0 1 2.001-1.26zm-16.701.6c.638 0 1.154.517 1.154 1.155s-.516 1.155-1.154 1.155c-.638 0-1.154-.517-1.154-1.155.001-.638.516-1.155 1.154-1.155zm13.483 12.997c-.865 0-1.55 1.378-1.55 3.085 0 1.707.685 3.085 1.55 3.085s1.55-1.378 1.55-3.085c0-1.707-.686-3.085-1.55-3.085zm-11.121 0c-.865 0-1.55 1.378-1.55 3.085 0 1.707.686 3.085 1.55 3.085s1.55-1.378 1.55-3.085c0-1.707-.685-3.085-1.55-3.085z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'snapchat', 
+      name: 'Snapchat', 
+      color: '#FFFC00', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M12 0C5.372 0 0 5.373 0 12s5.372 12 12 12 12-5.373 12-12S18.628 0 12 0zm.667 16.667c-1.334.667-2.667.667-4-.334v2.667c.667.334 1.334.667 2.667.667s2-.333 2.667-.667v-2.666zm5.333-4.334c-.667 0-1.333-.667-1.333-1.333s.667-1.333 1.333-1.333 1.333.667 1.333 1.333-.666 1.333-1.333 1.333zm-10.667 0c-.667 0-1.333-.667-1.333-1.333s.667-1.333 1.333-1.333 1.333.667 1.333 1.333-.666 1.333-1.333 1.333z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'whatsapp', 
+      name: 'WhatsApp', 
+      color: '#25D366', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a8.368 8.368 0 0 0-8.239 8.309c0 1.763.484 3.49 1.386 5.003L3.6 21.702l5.752-1.493a8.348 8.348 0 0 0 5.385 1.75h.005c4.697 0 8.297-3.616 8.297-8.038 0-2.143-.784-4.13-2.213-5.636-1.43-1.508-3.324-2.336-5.226-2.336"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'telegram', 
+      name: 'Telegram', 
+      color: '#0088cc', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295-.037 0-.074 0-.11-.011l.213-3.053 5.56-5.023c.242-.213-.054-.328-.375-.115l-6.869 4.32-2.96-.924c-.643-.204-.657-.643.136-.953l11.566-4.458c.542-.203 1.01.131.84.951z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'fortnite', 
+      name: 'Fortnite', 
+      color: '#9F0FDB', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M6 0L0 6v12l6 6h12l6-6V6l-6-6H6zm2.4 3.6h2.4v4.8h3.6V3.6h2.4v10.8h-2.4v-3.6h-3.6v3.6H8.4V3.6zm9.6 0v10.8h-2.4V3.6h2.4z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'valorant', 
+      name: 'Valorant', 
+      color: '#FF4455', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M12 0L6 4v8l6 8 6-8V4l-6-4zm3 10l-3 4-3-4 3-4 3 4z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'apex', 
+      name: 'Apex Legends', 
+      color: '#E64A19', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M12 2L2 8v8l10 6 10-6V8l-10-6zm0 2.4l8 4.8v6.4L12 19.6l-8-4.8v-6.4L12 4.4zm0 3.2l-5 3v4l5 3 5-3v-4l-5-3z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'lol', 
+      name: 'League of Legends', 
+      color: '#0A8BD9', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11z"/>
+        </svg>
+      )
+    },
+    { 
+      id: 'pinterest', 
+      name: 'Pinterest', 
+      color: '#E60023', 
+      logo: (
+        <svg viewBox="0 0 24 24" className="w-8 h-8 fill-current">
+          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 2c5.514 0 10 4.486 10 10s-4.486 10-10 10S2 17.514 2 12 6.486 2 12 2zm1.5 11.5c-.385-.553-.848-.92-1.5-.92-.652 0-1.115.367-1.5.92-.385-.553-.848-.92-1.5-.92-.652 0-1.115.367-1.5.92V10h3v2.5H9v2c0 .828.672 1.5 1.5 1.5s1.5-.672 1.5-1.5v-2h3v-2.5z"/>
+        </svg>
+      )
+    }
+  ], []);
+
+  const addPassword = useCallback(() => {
+    if (formData.username && formData.password) {
+      setPasswords(prev => [...prev, { ...formData, id: Date.now() }]);
+      setFormData({ platform: 'roblox', username: '', password: '', email: '' });
+      setShowForm(false);
+    }
+  }, [formData]);
+
+  const deletePassword = useCallback((id) => {
+    setPasswords(prev => prev.filter(p => p.id !== id));
+  }, []);
+
+  const copyToClipboard = useCallback((text, id) => {
+    navigator.clipboard.writeText(text);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  }, []);
+
+  const toggleShowPassword = useCallback((id) => {
+    setShowPassword(prev => ({ ...prev, [id]: !prev[id] }));
+  }, []);
+
+  const getPlatformData = useCallback((platformId) => {
+    return platforms.find(p => p.id === platformId);
+  }, [platforms]);
+
+  const filteredPlatforms = useMemo(() => platforms, [platforms]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-red-950 to-slate-950 text-white overflow-hidden relative">
+      {/* Fondo animado épico */}
+      <div className="fixed inset-0 opacity-40 pointer-events-none">
+        <div className="absolute top-0 left-0 w-96 h-96 bg-red-600 rounded-full mix-blend-screen filter blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/3 right-0 w-80 h-80 bg-red-500 rounded-full mix-blend-screen filter blur-3xl animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-purple-600 rounded-full mix-blend-screen filter blur-3xl animate-pulse" style={{animationDelay: '4s'}}></div>
+      </div>
+
+      {/* Líneas decorativas animadas */}
+      <div className="fixed inset-0 pointer-events-none opacity-20">
+        <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-red-500 via-purple-500 to-transparent animate-pulse"></div>
+        <div className="absolute top-1/2 right-0 w-full h-px bg-gradient-to-l from-red-500 via-purple-500 to-transparent animate-pulse" style={{animationDelay: '2s'}}></div>
+        <div className="absolute bottom-1/4 left-0 w-full h-px bg-gradient-to-r from-purple-500 via-red-500 to-transparent animate-pulse" style={{animationDelay: '4s'}}></div>
+      </div>
+
+      <div className="relative z-10">
+        {/* Header MEGA ÉPICO */}
+        <div className="border-b-2 border-red-600/50 backdrop-blur-xl sticky top-0 z-50 bg-gradient-to-r from-slate-950/90 via-red-950/90 to-slate-950/90 shadow-2xl shadow-red-600/20">
+          <div className="max-w-7xl mx-auto px-6 py-10">
+            <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 via-transparent to-red-600/20 animate-pulse"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="text-6xl font-black bg-gradient-to-r from-red-600 via-red-400 to-red-700 bg-clip-text text-transparent animate-pulse drop-shadow-lg" style={{textShadow: '0 0 20px rgba(220, 38, 38, 0.8)'}}>
+                  ✖ X-TEAM
+                </div>
+                <div className="text-3xl animate-bounce">🔥</div>
+              </div>
+              
+              <div className="flex items-center gap-3 mb-2">
+                <Shield size={24} className="text-red-500" />
+                <p className="text-red-200 text-xl font-bold tracking-wide">
+                  🔐 Espacio Para Guardar tus Cuentas Seguras
+                </p>
+              </div>
+              
+              <p className="text-red-300/70 text-sm font-semibold flex items-center gap-2">
+                <Zap size={16} className="text-red-500" />
+                Protege tus identidades digitales con X-TEAM
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Contenido principal */}
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          {/* Stats optimizado */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+            <div className="p-4 bg-gradient-to-br from-red-900/40 to-red-950/40 border-2 border-red-600/30 rounded-lg backdrop-blur-md hover:border-red-500/60 transition-all duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-red-300 text-sm font-bold">Cuentas Guardadas</p>
+                  <p className="text-3xl font-black text-red-500">{passwords.length}</p>
+                </div>
+                <Lock size={40} className="text-red-600/50" />
+              </div>
+            </div>
+            <div className="p-4 bg-gradient-to-br from-purple-900/40 to-purple-950/40 border-2 border-purple-600/30 rounded-lg backdrop-blur-md hover:border-purple-500/60 transition-all duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-purple-300 text-sm font-bold">Plataformas</p>
+                  <p className="text-3xl font-black text-purple-500">{filteredPlatforms.length}+</p>
+                </div>
+                <Shield size={40} className="text-purple-600/50" />
+              </div>
+            </div>
+            <div className="p-4 bg-gradient-to-br from-red-900/40 to-red-950/40 border-2 border-red-600/30 rounded-lg backdrop-blur-md hover:border-red-500/60 transition-all duration-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-red-300 text-sm font-bold">Estado</p>
+                  <p className="text-3xl font-black text-green-500">✓ SEGURO</p>
+                </div>
+                <Zap size={40} className="text-red-600/50" />
+              </div>
+            </div>
+          </div>
+
+          {/* Botón agregar mejorado */}
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="mb-10 px-8 py-4 bg-gradient-to-r from-red-600 via-red-500 to-pink-600 hover:from-red-500 hover:via-red-400 hover:to-pink-500 rounded-xl font-bold text-xl flex items-center gap-3 transform hover:scale-110 transition-all duration-300 shadow-2xl hover:shadow-red-500/50 animate-bounce relative overflow-hidden group w-full md:w-auto"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-pink-400 opacity-0 group-hover:opacity-30 transition-opacity"></div>
+            <Plus size={28} /> 
+            <span className="relative">+ AGREGAR CONTRASEÑA</span>
+          </button>
+
+          {/* Formulario mejorado */}
+          {showForm && (
+            <div className="mb-12 p-8 bg-gradient-to-br from-slate-900/95 via-red-950/95 to-slate-900/95 backdrop-blur-xl rounded-xl border-2 border-red-500/50 transform animate-in fade-in slide-in-from-top-4 shadow-2xl shadow-red-600/20 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 via-purple-600 to-red-600 animate-pulse"></div>
+              
+              <h3 className="text-3xl font-black mb-6 text-transparent bg-gradient-to-r from-red-400 to-pink-500 bg-clip-text">🔓 Nueva Contraseña</h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+                <div>
+                  <label className="block text-red-300 font-bold mb-3 flex items-center gap-2"><Zap size={16} className="text-red-500" /> Plataforma</label>
+                  <select
+                    value={formData.platform}
+                    onChange={(e) => setFormData({...formData, platform: e.target.value})}
+                    className="w-full bg-slate-800/80 border-2 border-red-500/50 rounded-lg p-3 text-white focus:outline-none focus:border-red-400 focus:bg-slate-800 transition-all font-semibold"
+                  >
+                    {filteredPlatforms.map(p => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-red-300 font-bold mb-3 flex items-center gap-2"><Lock size={16} className="text-red-500" /> Email</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full bg-slate-800/80 border-2 border-red-500/50 rounded-lg p-3 text-white focus:outline-none focus:border-red-400 focus:bg-slate-800 transition-all"
+                    placeholder="tu@email.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-red-300 font-bold mb-3 flex items-center gap-2"><Shield size={16} className="text-red-500" /> Usuario</label>
+                  <input
+                    type="text"
+                    value={formData.username}
+                    onChange={(e) => setFormData({...formData, username: e.target.value})}
+                    className="w-full bg-slate-800/80 border-2 border-red-500/50 rounded-lg p-3 text-white focus:outline-none focus:border-red-400 focus:bg-slate-800 transition-all"
+                    placeholder="Tu usuario o nickname"
+                  />
+                </div>
+                <div>
+                  <label className="block text-red-300 font-bold mb-3 flex items-center gap-2"><Lock size={16} className="text-red-500" /> Contraseña</label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData, password: e.target.value})}
+                    className="w-full bg-slate-800/80 border-2 border-red-500/50 rounded-lg p-3 text-white focus:outline-none focus:border-red-400 focus:bg-slate-800 transition-all"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={addPassword}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 rounded-lg font-bold transform hover:scale-105 transition-all shadow-lg hover:shadow-green-500/50 text-lg"
+                >
+                  ✓ GUARDAR
+                </button>
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="flex-1 px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-bold transform hover:scale-105 transition-all text-lg"
+                >
+                  ✕ CANCELAR
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Grid de contraseñas */}
+          {passwords.length === 0 ? (
+            <div className="text-center py-20 px-4">
+              <div className="text-7xl mb-6 animate-bounce">🎮</div>
+              <p className="text-red-300 text-2xl font-bold mb-3">Bienvenido a X-TEAM</p>
+              <p className="text-red-200/70 text-lg">No hay contraseñas guardadas. ¡Empieza a proteger tus cuentas ahora!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {passwords.map((pwd, idx) => {
+                const platform = getPlatformData(pwd.platform);
+                const isShown = showPassword[pwd.id];
+                
+                return (
+                  <div
+                    key={pwd.id}
+                    className="group relative p-6 rounded-xl bg-gradient-to-br from-slate-800/90 to-slate-700/90 border-2 border-red-500/30 hover:border-red-400/70 transform hover:scale-105 transition-all duration-300 backdrop-blur-md hover:shadow-2xl hover:shadow-red-500/30 overflow-hidden"
+                    style={{animationDelay: `${idx * 100}ms`}}
+                  >
+                    {/* Brillo superior */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-red-500/0 via-transparent to-red-500/0 rounded-xl opacity-0 group-hover:opacity-30 transition-opacity"></div>
+                    
+                    {/* Efecto de borde animado */}
+                    <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-red-500 via-purple-500 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    
+                    <div className="relative z-10">
+                      {/* Plataforma con logo real */}
+                      <div className="flex items-center justify-between mb-5 pb-4 border-b border-red-500/20">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 text-red-400" style={{ color: platform.color }}>
+                            {platform.logo}
+                          </div>
+                          <h3 className="text-2xl font-black" style={{ color: platform.color }}>
+                            {platform.name}
+                          </h3>
+                        </div>
+                        <button
+                          onClick={() => deletePassword(pwd.id)}
+                          className="p-2 bg-red-500/20 hover:bg-red-600 rounded-lg transition-all transform hover:scale-125 hover:rotate-90 duration-300"
+                        >
+                          <Trash2 size={20} className="text-red-400" />
+                        </button>
+                      </div>
+
+                      {/* Email */}
+                      {pwd.email && (
+                        <div className="mb-4">
+                          <p className="text-red-400 text-xs font-bold mb-2 flex items-center gap-1"><Lock size={12} /> Email:</p>
+                          <div className="flex items-center justify-between bg-slate-700/50 border border-red-500/20 rounded-lg p-3 hover:bg-slate-700 transition-all">
+                            <p className="text-gray-300 break-all text-sm font-mono">{pwd.email}</p>
+                            <button
+                              onClick={() => copyToClipboard(pwd.email, `email-${pwd.id}`)}
+                              className="ml-2 p-1 hover:bg-red-500/30 rounded transition-all hover:scale-125"
+                            >
+                              {copied === `email-${pwd.id}` ? (
+                                <Check size={16} className="text-green-400" />
+                              ) : (
+                                <Copy size={16} className="text-red-400" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Usuario */}
+                      <div className="mb-4">
+                        <p className="text-red-400 text-xs font-bold mb-2 flex items-center gap-1"><Shield size={12} /> Usuario:</p>
+                        <div className="flex items-center justify-between bg-slate-700/50 border border-red-500/20 rounded-lg p-3 hover:bg-slate-700 transition-all">
+                          <p className="text-gray-300 break-all text-sm font-mono font-bold">{pwd.username}</p>
+                          <button
+                            onClick={() => copyToClipboard(pwd.username, `user-${pwd.id}`)}
+                            className="ml-2 p-1 hover:bg-red-500/30 rounded transition-all hover:scale-125"
+                          >
+                            {copied === `user-${pwd.id}` ? (
+                              <Check size={16} className="text-green-400" />
+                            ) : (
+                              <Copy size={16} className="text-red-400" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Contraseña */}
+                      <div>
+                        <p className="text-red-400 text-xs font-bold mb-2 flex items-center gap-1"><Zap size={12} /> Contraseña:</p>
+                        <div className="flex items-center justify-between bg-gradient-to-r from-slate-700/50 to-red-900/30 border border-red-500/30 rounded-lg p-3 hover:from-slate-700 hover:to-red-900/40 transition-all">
+                          <p className="text-gray-300 text-sm font-mono font-bold">
+                            {isShown ? pwd.password : '••••••••'}
+                          </p>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => toggleShowPassword(pwd.id)}
+                              className="p-1 hover:bg-red-500/30 rounded transition-all hover:scale-125"
+                            >
+                              {isShown ? <EyeOff size={16} className="text-red-400" /> : <Eye size={16} className="text-red-400" />}
+                            </button>
+                            <button
+                              onClick={() => copyToClipboard(pwd.password, `pwd-${pwd.id}`)}
+                              className="p-1 hover:bg-red-500/30 rounded transition-all hover:scale-125"
+                            >
+                              {copied === `pwd-${pwd.id}` ? (
+                                <Check size={16} className="text-green-400" />
+                              ) : (
+                                <Copy size={16} className="text-red-400" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-12px); }
+        }
+        .animate-bounce {
+          animation: bounce 2s infinite;
+        }
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 5px rgba(220, 38, 38, 0.5); }
+          50% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.8); }
+        }
+        .animate-glow {
+          animation: glow 2s infinite;
+        }
+      `}</style>
+    </div>
+  );
+}
